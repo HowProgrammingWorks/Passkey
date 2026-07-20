@@ -1,13 +1,14 @@
 {
-  "name": "example",
+  "name": "passkey",
   "private": true,
   "version": "1.0.0",
   "type": "module",
   "author": "Timur Shemsedinov <timur.shemsedinov@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint . && prettier -c \"**/*.js\"",
-    "fix": "eslint . --fix && prettier --write \"**/*.js\""
+    "start": "node server.js",
+    "lint": "eslint . && prettier -c \"**/*.{js,json,html,css}\"",
+    "fix": "eslint . --fix && prettier --write \"**/*.{js,json,html,css}\""
   },
   "devDependencies": {
     "eslint": "^10.5.0",

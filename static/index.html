@@ -1,20 +1,60 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Passkey</title>
-    <style>
-      body {
-        max-width: 840px;
-        margin: 32px auto;
-        padding: 0 16px;
-        font-family: system-ui, sans-serif;
-      }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Syne:wght@700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/style.css" />
+    <script type="module" src="/app.js"></script>
   </head>
   <body>
-    <h1>Passkey</h1>
-    <p>Static files are served from this directory.</p>
+    <div class="atmosphere" aria-hidden="true"></div>
+
+    <main>
+      <header class="brand">
+        <h1>Passkey</h1>
+        <p>Passwordless sign-in with WebAuthn.</p>
+      </header>
+
+      <section class="panel" aria-labelledby="panel-title">
+        <h2 id="panel-title" class="visually-hidden">Authenticate</h2>
+
+        <form id="register-form">
+          <label>
+            <span>Username</span>
+            <input
+              name="username"
+              autocomplete="username webauthn"
+              placeholder="choose a username"
+              required
+            />
+          </label>
+          <button type="submit" class="primary">Create passkey</button>
+        </form>
+
+        <button id="enroll" type="button" class="secondary">
+          Register existing passkey
+        </button>
+
+        <div class="divider" id="auth-divider" aria-hidden="true">
+          <span>or</span>
+        </div>
+
+        <button id="authenticate" type="button" class="secondary">
+          Sign in with passkey
+        </button>
+        <button id="logout" type="button" class="secondary" hidden>
+          Sign out
+        </button>
+
+        <output id="status" class="status" data-tone="idle">Ready</output>
+      </section>
+    </main>
   </body>
 </html>
