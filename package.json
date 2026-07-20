@@ -1,0 +1,17 @@
+{
+  "name": "example",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "author": "Timur Shemsedinov <timur.shemsedinov@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint . && prettier -c \"**/*.js\"",
+    "fix": "eslint . --fix && prettier --write \"**/*.js\""
+  },
+  "devDependencies": {
+    "eslint": "^10.5.0",
+    "eslint-config-metarhia": "^9.1.9",
+    "prettier": "^3.8.1"
+  }
+}
