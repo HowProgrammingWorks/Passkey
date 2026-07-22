@@ -25,7 +25,7 @@
       <section class="panel" aria-labelledby="panel-title">
         <h2 id="panel-title" class="visually-hidden">Authenticate</h2>
 
-        <form id="register-form">
+        <form id="create-form">
           <label>
             <span>Username</span>
             <input
@@ -38,18 +38,14 @@
           <button type="submit" class="primary">Create passkey</button>
         </form>
 
-        <button id="enroll" type="button" class="secondary">
-          Register existing passkey
-        </button>
-
-        <div class="divider" id="auth-divider" aria-hidden="true">
+        <div class="divider" id="guest-divider" aria-hidden="true">
           <span>or</span>
         </div>
 
-        <button id="authenticate" type="button" class="secondary">
+        <button id="login-btn" type="button" class="secondary">
           Sign in with passkey
         </button>
-        <button id="logout" type="button" class="secondary" hidden>
+        <button id="logout-btn" type="button" class="secondary" hidden>
           Sign out
         </button>
 

@@ -12,8 +12,8 @@
   --ok: #0f7a6b;
   --shadow: 0 18px 50px color-mix(in srgb, #1a2a3a 12%, transparent);
   --radius: 1rem;
-  --font-display: "Syne", sans-serif;
-  --font-body: "IBM Plex Sans", sans-serif;
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'IBM Plex Sans', sans-serif;
 }
 
 *,
@@ -198,7 +198,7 @@ button.secondary:hover:not(:disabled) {
 
 .divider::before,
 .divider::after {
-  content: "";
+  content: '';
   height: 1px;
   background: var(--line);
 }
@@ -215,23 +215,23 @@ button.secondary:hover:not(:disabled) {
   animation: status-in 0.35s ease both;
 }
 
-.status[data-tone="idle"] {
+.status[data-tone='idle'] {
   color: var(--ink-soft);
 }
 
-.status[data-tone="pending"] {
+.status[data-tone='pending'] {
   color: var(--ink);
   border-color: color-mix(in srgb, var(--accent) 25%, transparent);
   background: var(--accent-soft);
 }
 
-.status[data-tone="ok"] {
+.status[data-tone='ok'] {
   color: var(--ok);
   border-color: color-mix(in srgb, var(--ok) 30%, transparent);
   background: color-mix(in srgb, var(--ok) 10%, white);
 }
 
-.status[data-tone="error"] {
+.status[data-tone='error'] {
   color: var(--danger);
   border-color: color-mix(in srgb, var(--danger) 28%, transparent);
   background: color-mix(in srgb, var(--danger) 8%, white);

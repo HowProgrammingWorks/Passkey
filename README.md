@@ -14,33 +14,31 @@ Edit `config.js` if you change host, port, or deploy over HTTPS.
 
 ## Flow
 
-Registration:
+Create a passkey (signs you in):
 
 ```text
 POST /api/register/options
 navigator.credentials.create()
-POST /api/register/verify
+POST /api/register/verify   → session cookie
 ```
 
-Re-register a browser passkey onto the server (public key is kept in
-`localStorage` after the first create):
+Sign in again later:
 
 ```text
-POST /api/register/enroll/options
+POST /api/login/options    → allowCredentials: [] (account picker)
 navigator.credentials.get()
-POST /api/register/enroll
+POST /api/login/verify      → session cookie
 ```
 
-Authentication:
+Session:
 
 ```text
-POST /api/authenticate/options
-navigator.credentials.get()
-POST /api/authenticate/verify
+GET  /api/session
+POST /api/logout
 ```
 
-The server checks challenge, origin, RP ID, user verification, and the ES256
-signature, then sets an HttpOnly session cookie. Registered credentials are
-saved to `credentials.json` so they survive restarts; challenges and sessions
-stay in memory. WebAuthn never exposes the public key during `get()`, so enroll
-needs a local copy from an earlier `create()` in this browser.
+The server checks challenge, origin, RP ID, user verification, and (on sign-in)
+the ES256 signature, then sets an HttpOnly session cookie. Create and login
+verify both start a session. Registered credentials are saved to
+`credentials.json` so they survive restarts; challenges and sessions stay in
+memory.
