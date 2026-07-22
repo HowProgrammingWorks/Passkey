@@ -1,8 +1,18 @@
+const guestView = document.querySelector('#guest-view');
+const sessionView = document.querySelector('#session-view');
+const createPanel = document.querySelector('#create-panel');
+const signinPanel = document.querySelector('#signin-panel');
 const createForm = document.querySelector('#create-form');
+const usernameInput = document.querySelector('#username');
 const loginBtn = document.querySelector('#login-btn');
 const logoutBtn = document.querySelector('#logout-btn');
-const guestDivider = document.querySelector('#guest-divider');
+const modeButtons = [...document.querySelectorAll('.mode-btn')];
+const sessionName = document.querySelector('#session-name');
+const sessionAvatar = document.querySelector('#session-avatar');
 const statusEl = document.querySelector('#status');
+
+let currentMode = 'create';
+let busy = false;
 
 const toBase64url = (value) => {
   const bytes = new Uint8Array(value);
@@ -52,35 +62,71 @@ const setStatus = (message, tone = 'idle') => {
   statusEl.style.animation = '';
 };
 
-const setBusy = (busy) => {
-  const buttons = [
-    createForm.querySelector('button'),
-    loginBtn,
-    logoutBtn,
-  ];
-  for (const button of buttons) {
-    if (button && !button.hidden) button.disabled = busy;
+const interactiveControls = () => [
+  ...modeButtons,
+  createForm.querySelector('button'),
+  usernameInput,
+  loginBtn,
+  logoutBtn,
+];
+
+const setBusy = (nextBusy) => {
+  busy = nextBusy;
+  guestView.dataset.busy = String(nextBusy);
+  sessionView.dataset.busy = String(nextBusy);
+  for (const control of interactiveControls()) {
+    if (!control || control.hidden) continue;
+    control.disabled = nextBusy;
   }
-  const input = createForm.querySelector('input');
-  if (input && !createForm.hidden) input.disabled = busy;
 };
 
-const showGuest = (user) => {
+const setMode = (mode, { focus = true } = {}) => {
+  currentMode = mode;
+  const createSelected = mode === 'create';
+
+  for (const button of modeButtons) {
+    const selected = button.dataset.mode === mode;
+    button.setAttribute('aria-selected', String(selected));
+    button.tabIndex = selected ? 0 : -1;
+  }
+
+  createPanel.hidden = !createSelected;
+  signinPanel.hidden = createSelected;
+
+  if (focus && createSelected && !busy) {
+    usernameInput.focus();
+  }
+};
+
+const showSession = (user) => {
   const signedIn = Boolean(user);
-  createForm.hidden = signedIn;
-  guestDivider.hidden = signedIn;
-  loginBtn.hidden = signedIn;
-  logoutBtn.hidden = !signedIn;
-  if (user) setStatus(`Signed in as ${user.username}`, 'ok');
+  guestView.hidden = signedIn;
+  sessionView.hidden = !signedIn;
+
+  if (user) {
+    sessionName.textContent = user.username;
+    sessionAvatar.textContent = user.username.slice(0, 1).toUpperCase();
+    setStatus(`Welcome back, ${user.username}`, 'ok');
+  } else {
+    sessionName.textContent = '';
+    sessionAvatar.textContent = '?';
+    setMode(currentMode, { focus: false });
+  }
 };
 
 const createPasskey = async (event) => {
   event.preventDefault();
-  const username = new FormData(createForm).get('username');
+  const username = new FormData(createForm).get('username')?.trim();
+  if (!username) {
+    setStatus('Enter a username to register.', 'error');
+    usernameInput.focus();
+    return;
+  }
+
   setBusy(true);
   try {
     requireLocalhost();
-    setStatus('Creating passkey...', 'pending');
+    setStatus('Creating passkey…', 'pending');
     const options = await api('/api/register/options', { username });
     options.challenge = fromBase64url(options.challenge);
     options.user.id = fromBase64url(options.user.id);
@@ -107,7 +153,7 @@ const createPasskey = async (event) => {
     };
     const result = await api('/api/register/verify', verification);
     createForm.reset();
-    showGuest(result.user);
+    showSession(result.user);
     setStatus(`Passkey created — signed in as ${result.user.username}`, 'ok');
   } catch (error) {
     setStatus(describeError(error), 'error');
@@ -120,7 +166,7 @@ const loginWithPasskey = async () => {
   setBusy(true);
   try {
     requireLocalhost();
-    setStatus('Waiting for passkey...', 'pending');
+    setStatus('Waiting for passkey…', 'pending');
     const options = await api('/api/login/options', {});
     options.challenge = fromBase64url(options.challenge);
     options.allowCredentials = options.allowCredentials.map((item) => {
@@ -145,7 +191,7 @@ const loginWithPasskey = async () => {
       },
     };
     const result = await api('/api/login/verify', verification);
-    showGuest(result.user);
+    showSession(result.user);
   } catch (error) {
     setStatus(describeError(error), 'error');
   } finally {
@@ -157,7 +203,7 @@ const logout = async () => {
   setBusy(true);
   try {
     await api('/api/logout', {});
-    showGuest(null);
+    showSession(null);
     setStatus('Signed out', 'idle');
   } catch (error) {
     setStatus(error.message, 'error');
@@ -169,21 +215,48 @@ const logout = async () => {
 const restoreSession = async () => {
   if (!window.PublicKeyCredential) {
     setStatus('This browser does not support WebAuthn.', 'error');
-    createForm.hidden = true;
-    loginBtn.hidden = true;
-    guestDivider.hidden = true;
+    guestView.hidden = true;
+    sessionView.hidden = true;
     return;
   }
   try {
     const result = await api('/api/session');
-    showGuest(result.user);
+    showSession(result.user);
   } catch {
-    showGuest(null);
+    showSession(null);
     setStatus('Ready', 'idle');
   }
 };
 
+const onModeKeydown = (event) => {
+  const keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End'];
+  if (!keys.includes(event.key)) return;
+
+  event.preventDefault();
+  const index = modeButtons.indexOf(event.currentTarget);
+  let next = index;
+  if (event.key === 'ArrowRight') next = (index + 1) % modeButtons.length;
+  if (event.key === 'ArrowLeft') {
+    next = (index - 1 + modeButtons.length) % modeButtons.length;
+  }
+  if (event.key === 'Home') next = 0;
+  if (event.key === 'End') next = modeButtons.length - 1;
+
+  const mode = modeButtons[next].dataset.mode;
+  setMode(mode);
+  modeButtons[next].focus();
+};
+
+for (const button of modeButtons) {
+  button.addEventListener('click', () => {
+    if (busy) return;
+    setMode(button.dataset.mode);
+  });
+  button.addEventListener('keydown', onModeKeydown);
+}
+
 createForm.addEventListener('submit', createPasskey);
 loginBtn.addEventListener('click', loginWithPasskey);
 logoutBtn.addEventListener('click', logout);
+setMode('create', { focus: false });
 restoreSession();

@@ -25,31 +25,94 @@
       <section class="panel" aria-labelledby="panel-title">
         <h2 id="panel-title" class="visually-hidden">Authenticate</h2>
 
-        <form id="create-form">
-          <label>
-            <span>Username</span>
-            <input
-              name="username"
-              autocomplete="username webauthn"
-              placeholder="choose a username"
-              required
-            />
-          </label>
-          <button type="submit" class="primary">Create passkey</button>
-        </form>
+        <div id="guest-view">
+          <div
+            class="mode-switch"
+            role="tablist"
+            aria-label="Choose an action"
+          >
+            <button
+              type="button"
+              class="mode-btn"
+              role="tab"
+              id="mode-create"
+              aria-selected="true"
+              aria-controls="create-panel"
+              data-mode="create"
+            >
+              Create passkey
+            </button>
+            <button
+              type="button"
+              class="mode-btn"
+              role="tab"
+              id="mode-signin"
+              aria-selected="false"
+              aria-controls="signin-panel"
+              data-mode="signin"
+              tabindex="-1"
+            >
+              Sign in
+            </button>
+          </div>
 
-        <div class="divider" id="guest-divider" aria-hidden="true">
-          <span>or</span>
+          <div
+            id="create-panel"
+            role="tabpanel"
+            aria-labelledby="mode-create"
+          >
+            <p class="hint">Pick a username, then register a passkey on this device.</p>
+            <form id="create-form">
+              <label for="username">
+                <span>Username</span>
+                <input
+                  id="username"
+                  name="username"
+                  autocomplete="username webauthn"
+                  placeholder="choose a username"
+                  required
+                  autofocus
+                />
+              </label>
+              <button type="submit" class="primary">Register</button>
+            </form>
+          </div>
+
+          <div
+            id="signin-panel"
+            role="tabpanel"
+            aria-labelledby="mode-signin"
+            hidden
+          >
+            <p class="hint">Use a passkey already saved for this site.</p>
+            <button id="login-btn" type="button" class="primary">
+              Sign in with passkey
+            </button>
+          </div>
         </div>
 
-        <button id="login-btn" type="button" class="secondary">
-          Sign in with passkey
-        </button>
-        <button id="logout-btn" type="button" class="secondary" hidden>
-          Sign out
-        </button>
+        <div id="session-view" hidden>
+          <div class="session-card" aria-live="polite">
+            <span class="session-avatar" id="session-avatar" aria-hidden="true"
+              >?</span
+            >
+            <div class="session-copy">
+              <p class="session-label">Signed in</p>
+              <p class="session-name" id="session-name"></p>
+            </div>
+          </div>
+          <button id="logout-btn" type="button" class="secondary">
+            Sign out
+          </button>
+        </div>
 
-        <output id="status" class="status" data-tone="idle">Ready</output>
+        <output
+          id="status"
+          class="status"
+          data-tone="idle"
+          aria-live="polite"
+          >Ready</output
+        >
       </section>
     </main>
   </body>
